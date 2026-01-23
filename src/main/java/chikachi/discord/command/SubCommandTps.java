@@ -6,34 +6,40 @@
  * License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see http://www.gnu.org/licenses.
+ * along with this program. If not, see http://www.gnu.org/licenses.
  */
 
 package chikachi.discord.command;
-
-import chikachi.discord.DiscordCommandSender;
-import chikachi.discord.core.CoreUtils;
-import chikachi.discord.core.MinecraftFormattingCodes;
-import com.google.common.base.Joiner;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.ChatComponentText;
-import net.minecraftforge.common.DimensionManager;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 
+import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentText;
+import net.minecraftforge.common.DimensionManager;
+
+import com.google.common.base.Joiner;
+
+import chikachi.discord.DiscordCommandSender;
+import chikachi.discord.core.CoreUtils;
+import chikachi.discord.core.MinecraftFormattingCodes;
+
 class SubCommandTps {
-    private static final DecimalFormat timeFormatter = new DecimalFormat("########0.000", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+
+    private static final DecimalFormat timeFormatter = new DecimalFormat(
+        "########0.000",
+        DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
     static void execute(ICommandSender sender, ArrayList<String> args) {
         boolean isDiscord = sender instanceof DiscordCommandSender;
 
-        boolean colored = args.stream().anyMatch(arg -> arg.equalsIgnoreCase("--color"));
+        boolean colored = args.stream()
+            .anyMatch(arg -> arg.equalsIgnoreCase("--color"));
 
         MinecraftServer minecraftServer = MinecraftServer.getServer();
         List<String> tpsTimes = new ArrayList<>();
@@ -42,11 +48,21 @@ class SubCommandTps {
         HashMap<Integer, String> dimensionMap = new HashMap<>();
 
         for (Integer dimensionId : dimensionIds) {
-            dimensionMap.put(dimensionId, DimensionManager.getProvider(dimensionId).getDimensionName());
+            dimensionMap.put(
+                dimensionId,
+                DimensionManager.getProvider(dimensionId)
+                    .getDimensionName());
         }
 
-        int maxDimensionIdLength = Math.max(CoreUtils.getMinValue(dimensionMap.keySet()).toString().length(), CoreUtils.getMaxValue(dimensionMap.keySet()).toString().length());
-        int maxDimensionNameLength = Math.max(CoreUtils.getMinLength(dimensionMap.values()), CoreUtils.getMaxLength(dimensionMap.values()));
+        int maxDimensionIdLength = Math.max(
+            CoreUtils.getMinValue(dimensionMap.keySet())
+                .toString()
+                .length(),
+            CoreUtils.getMaxValue(dimensionMap.keySet())
+                .toString()
+                .length());
+        int maxDimensionNameLength = Math
+            .max(CoreUtils.getMinLength(dimensionMap.values()), CoreUtils.getMaxLength(dimensionMap.values()));
 
         SortedSet<Integer> sortedDimensionIds = new TreeSet<>(dimensionMap.keySet());
         String color;
@@ -66,14 +82,11 @@ class SubCommandTps {
                     String.format(
                         "Dim %s %s",
                         CoreUtils.padLeft(dimensionId + "", maxDimensionIdLength),
-                        CoreUtils.padRight(dimensionName, maxDimensionNameLength)
-                    ),
+                        CoreUtils.padRight(dimensionName, maxDimensionNameLength)),
                     CoreUtils.padLeft(color + timeFormatter.format(worldTickTime), 6),
                     isDiscord ? "" : MinecraftFormattingCodes.RESET,
                     CoreUtils.padLeft(color + timeFormatter.format(worldTPS), 6),
-                    isDiscord ? "" : MinecraftFormattingCodes.RESET
-                )
-            );
+                    isDiscord ? "" : MinecraftFormattingCodes.RESET));
         }
 
         double meanTickTime = CoreUtils.mean(minecraftServer.tickTimeArray) * 1.0E-6D;
@@ -89,21 +102,17 @@ class SubCommandTps {
                 CoreUtils.padLeft(color + timeFormatter.format(meanTickTime), 6),
                 isDiscord ? "" : MinecraftFormattingCodes.RESET,
                 CoreUtils.padLeft(color + timeFormatter.format(meanTPS), 6),
-                isDiscord ? "" : MinecraftFormattingCodes.RESET
-            )
-        );
+                isDiscord ? "" : MinecraftFormattingCodes.RESET));
 
         sender.addChatMessage(
             new ChatComponentText(
-                isDiscord ?
-                    String.format(
-                        "\n```%s\n%s\n```",
-                        colored ? "diff" : "lua",
-                        Joiner.on("\n").join(tpsTimes)
-                    ).replace("\\:", ":")
-                    :
-                    Joiner.on("\n").join(tpsTimes)
-            )
-        );
+                isDiscord ? String.format(
+                    "\n```%s\n%s\n```",
+                    colored ? "diff" : "lua",
+                    Joiner.on("\n")
+                        .join(tpsTimes))
+                    .replace("\\:", ":")
+                    : Joiner.on("\n")
+                        .join(tpsTimes)));
     }
 }

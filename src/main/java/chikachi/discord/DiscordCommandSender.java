@@ -6,22 +6,21 @@
  * License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see http://www.gnu.org/licenses.
+ * along with this program. If not, see http://www.gnu.org/licenses.
  */
 
 package chikachi.discord;
 
-import chikachi.discord.core.Batcher;
-import chikachi.discord.core.DiscordIntegrationLogger;
-import chikachi.discord.core.Patterns;
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.mojang.authlib.GameProfile;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.minecraft.server.MinecraftServer;
@@ -29,22 +28,25 @@ import net.minecraft.util.IChatComponent;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.util.FakePlayer;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.mojang.authlib.GameProfile;
+
+import chikachi.discord.core.Batcher;
+import chikachi.discord.core.DiscordIntegrationLogger;
+import chikachi.discord.core.Patterns;
 
 @SuppressWarnings("EntityConstructor")
 @ParametersAreNonnullByDefault
 public class DiscordCommandSender extends FakePlayer {
+
     private static final UUID playerUUID = UUID.fromString("828653ca-0185-43d4-b26d-620a7f016be6");
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(
-        new ThreadFactoryBuilder()
-            .setNameFormat(DiscordCommandSender.class.getSimpleName())
+        new ThreadFactoryBuilder().setNameFormat(DiscordCommandSender.class.getSimpleName())
             .setDaemon(true)
-            .build()
-    );
+            .build());
     private final MessageChannel channel;
     private final Batcher<String> batcher = new Batcher<String>(this::sendBatch, 100, 10, executor);
 
@@ -77,26 +79,24 @@ public class DiscordCommandSender extends FakePlayer {
     }
 
     private static String textComponentToDiscordMessage(IChatComponent component) {
-        return Patterns.minecraftCodePattern.matcher(
-            component.getUnformattedText()
-        ).replaceAll("");
+        return Patterns.minecraftCodePattern.matcher(component.getUnformattedText())
+            .replaceAll("");
     }
 
     private void sendBatch(List<String> messages) {
         final int numMessages = messages.size();
-        this.channel
-            .sendMessage(
-                Joiner.on("\n").join(messages)
-            )
+        this.channel.sendMessage(
+            Joiner.on("\n")
+                .join(messages))
             .submit()
             .exceptionally((Throwable t) -> {
                 // We could do some kind of retry here, but it feels like JDA should be responsible for that. Maybe it
                 // already does.
                 DiscordIntegrationLogger.Log(
-                    "Exception sending " + numMessages + " messages to Discord:\n"
+                    "Exception sending " + numMessages
+                        + " messages to Discord:\n"
                         + Throwables.getStackTraceAsString(t),
-                    true
-                );
+                    true);
                 return null;
             });
     }

@@ -6,17 +6,16 @@
  * License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see http://www.gnu.org/licenses.
+ * along with this program. If not, see http://www.gnu.org/licenses.
  */
 
 package chikachi.discord.command;
 
-import chikachi.discord.DiscordFakePlayer;
-import chikachi.discord.DiscordTeleporter;
-import com.mojang.authlib.GameProfile;
+import java.util.ArrayList;
+
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
@@ -27,9 +26,13 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.storage.IPlayerFileData;
 import net.minecraftforge.common.DimensionManager;
 
-import java.util.ArrayList;
+import com.mojang.authlib.GameProfile;
+
+import chikachi.discord.DiscordFakePlayer;
+import chikachi.discord.DiscordTeleporter;
 
 public class SubCommandUnstuck {
+
     public static void execute(ICommandSender sender, ArrayList<String> args) {
         if (args.size() == 0) {
             sender.addChatMessage(new ChatComponentText("Missing user"));
@@ -46,7 +49,8 @@ public class SubCommandUnstuck {
         ChunkCoordinates spawnpoint = overworld.getSpawnPoint();
         double y = spawnpoint.posY;
 
-        while (overworld.getBlock(spawnpoint.posX, (int) y, spawnpoint.posZ).isOpaqueCube()) {
+        while (overworld.getBlock(spawnpoint.posX, (int) y, spawnpoint.posZ)
+            .isOpaqueCube()) {
             y += 2;
         }
 
@@ -54,13 +58,15 @@ public class SubCommandUnstuck {
         double z = spawnpoint.posZ + 0.5;
 
         MinecraftServer minecraftServer = MinecraftServer.getServer();
-        EntityPlayerMP player = minecraftServer.getConfigurationManager().func_152612_a(username);
+        EntityPlayerMP player = minecraftServer.getConfigurationManager()
+            .func_152612_a(username);
 
         if (player != null) {
             int fromDimension = player.dimension;
 
             if (fromDimension != 0) {
-                minecraftServer.getConfigurationManager().transferPlayerToDimension(player, 0, new DiscordTeleporter(overworld));
+                minecraftServer.getConfigurationManager()
+                    .transferPlayerToDimension(player, 0, new DiscordTeleporter(overworld));
 
                 if (fromDimension == 1 && player.isEntityAlive()) {
                     overworld.spawnEntityInWorld(player);
@@ -70,7 +76,8 @@ public class SubCommandUnstuck {
 
             player.setPositionAndUpdate(x, y, z);
         } else {
-            GameProfile playerProfile = minecraftServer.func_152358_ax().func_152655_a(username);
+            GameProfile playerProfile = minecraftServer.func_152358_ax()
+                .func_152655_a(username);
 
             if (playerProfile == null || !playerProfile.isComplete()) {
                 sender.addChatMessage(new ChatComponentText("Player not found"));
@@ -78,10 +85,11 @@ public class SubCommandUnstuck {
             }
 
             DiscordFakePlayer fakePlayer = new DiscordFakePlayer(minecraftServer.worldServers[0], playerProfile);
-            IPlayerFileData saveHandler = minecraftServer.worldServers[0].getSaveHandler().getSaveHandler();
+            IPlayerFileData saveHandler = minecraftServer.worldServers[0].getSaveHandler()
+                .getSaveHandler();
             NBTTagCompound playerData = saveHandler.readPlayerData(fakePlayer);
 
-            //noinspection ConstantConditions
+            // noinspection ConstantConditions
             if (playerData == null) {
                 sender.addChatMessage(new ChatComponentText("Player not found on server"));
                 return;

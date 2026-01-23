@@ -6,13 +6,15 @@
  * License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see http://www.gnu.org/licenses.
+ * along with this program. If not, see http://www.gnu.org/licenses.
  */
 
 package chikachi.discord;
+
+import net.minecraftforge.common.MinecraftForge;
 
 import chikachi.discord.command.CommandDiscord;
 import chikachi.discord.core.CoreConstants;
@@ -24,10 +26,14 @@ import chikachi.discord.listener.MinecraftListener;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.*;
-import net.minecraftforge.common.MinecraftForge;
 
-@Mod(modid = CoreConstants.MODID, name = CoreConstants.MODNAME, version = CoreConstants.VERSION, acceptableRemoteVersions = "*")
+@Mod(
+    modid = CoreConstants.MODID,
+    name = CoreConstants.MODNAME,
+    version = CoreConstants.VERSION,
+    acceptableRemoteVersions = "*")
 public class DiscordIntegration {
+
     @Mod.Instance
     static DiscordIntegration instance;
 
@@ -41,7 +47,9 @@ public class DiscordIntegration {
         CoreUtils.addPatterns();
 
         MinecraftForge.EVENT_BUS.register(minecraftListener);
-        FMLCommonHandler.instance().bus().register(minecraftListener);
+        FMLCommonHandler.instance()
+            .bus()
+            .register(minecraftListener);
     }
 
     @Mod.EventHandler
@@ -50,14 +58,14 @@ public class DiscordIntegration {
     }
 
     @Mod.EventHandler
-    public void onServerAboutToStart(FMLServerAboutToStartEvent event) {
-    }
+    public void onServerAboutToStart(FMLServerAboutToStartEvent event) {}
 
     @Mod.EventHandler
     public void onServerStarting(FMLServerStartingEvent event) {
         proxy.onServerStarting();
 
-        DiscordClient.getInstance().addEventListener(new DiscordListener());
+        DiscordClient.getInstance()
+            .addEventListener(new DiscordListener());
 
         event.registerServerCommand(new CommandDiscord());
     }
