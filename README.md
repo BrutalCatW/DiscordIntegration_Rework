@@ -21,7 +21,7 @@ DiscordIntegration — серверный мод, связывающий Discord
 - IMC (Inter-Mod Communication) для интеграции с другими модами
 - Команда `/discord` с подкомандами: `config`, `online`, `tps`, `unstuck`, `uptime`, `link`, `unlink`
 
-## 🔧 Изменения в рeworkе
+## 🔧 Изменения в rework
 
 - Добавлена поддержка HTTP прокси для подключения к Discord (host, port, аутентификация)
 - Мигрирована build система на GTNH convention (`com.gtnewhorizons.gtnhconvention`)
