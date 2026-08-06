@@ -32,6 +32,8 @@ public class DiscordConfig {
     public DiscordMainChannelConfig channels = new DiscordMainChannelConfig();
     @Since(3.0)
     public DiscordPresenceConfig presence = new DiscordPresenceConfig();
+    @Since(3.0)
+    public ProxyConfig proxy = new ProxyConfig();
 
     public void fillFields() {
         if (this.token == null) {
@@ -51,6 +53,11 @@ public class DiscordConfig {
             this.presence = new DiscordPresenceConfig();
         }
         this.presence.fillFields();
+
+        if (this.proxy == null) {
+            this.proxy = new ProxyConfig();
+        }
+        this.proxy.fillFields();
     }
 
     public boolean isIgnoringUser(User user) {

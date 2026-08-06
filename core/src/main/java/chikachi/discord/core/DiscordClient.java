@@ -15,6 +15,7 @@
 package chikachi.discord.core;
 
 import chikachi.discord.core.config.Configuration;
+import chikachi.discord.core.config.discord.ProxyConfig;
 import chikachi.discord.core.config.minecraft.MinecraftConfig;
 import chikachi.discord.core.config.types.MessageConfig;
 import net.dv8tion.jda.core.AccountType;
@@ -27,6 +28,9 @@ import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.hooks.EventListener;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import com.neovisionaries.ws.client.WebSocketFactory;
+import okhttp3.Credentials;
+import okhttp3.OkHttpClient;
 
 import javax.security.auth.login.LoginException;
 import java.util.ArrayList;
@@ -96,6 +100,36 @@ public class DiscordClient extends ListenerAdapter {
                 .setAudioEnabled(false)
                 .setBulkDeleteSplittingEnabled(false)
                 .addEventListener(this);
+
+            ProxyConfig proxyConfig = Configuration.getConfig().discord.proxy;
+            if (proxyConfig.enabled && !proxyConfig.host.isEmpty()) {
+                java.net.Proxy jProxy = new java.net.Proxy(
+                    java.net.Proxy.Type.HTTP,
+                    new java.net.InetSocketAddress(proxyConfig.host, proxyConfig.port)
+                );
+
+                OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder().proxy(jProxy);
+
+                if (!proxyConfig.username.isEmpty()) {
+                    httpClientBuilder.proxyAuthenticator((route, response) -> response.request().newBuilder()
+                        .header("Proxy-Authorization", Credentials.basic(proxyConfig.username, proxyConfig.password))
+                        .build());
+                }
+
+                builder.setHttpClientBuilder(httpClientBuilder);
+
+                WebSocketFactory wsFactory = new WebSocketFactory();
+                wsFactory.setConnectionTimeout(15000);
+                wsFactory.getProxySettings()
+                    .setHost(proxyConfig.host)
+                    .setPort(proxyConfig.port);
+
+                if (!proxyConfig.username.isEmpty()) {
+                    wsFactory.getProxySettings().setCredentials(proxyConfig.username, proxyConfig.password);
+                }
+
+                builder.setWebsocketFactory(wsFactory);
+            }
 
             for (EventListener eventListener : this.eventListeners) {
                 builder.addEventListener(eventListener);
