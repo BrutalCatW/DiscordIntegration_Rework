@@ -42,10 +42,17 @@ class WebhookMessage {
         }
 
         String webhook = Configuration.getConfig().discord.channels.channels.get(channelId).webhook.trim();
-        Matcher matcher = Pattern.compile("https://(ptb\\.)?discordapp\\.com/api/webhooks/([0-9]+)/([a-zA-Z0-9\\-_]+)").matcher(webhook);
+        // Discord переехал на discord.com в 2020 году и выдаёт ссылки
+        // именно там. Старый шаблон знал только discordapp.com, поэтому
+        // современная ссылка не подходила, queue() возвращал false,
+        // и сообщение МОЛЧА уходило от имени бота вместо вебхука —
+        // без единой строки в логе. Принимаем оба домена и поддомены.
+        Matcher matcher = Pattern
+            .compile("https://(ptb\\.|canary\\.)?discord(app)?\\.com/api/(v\\d+/)?webhooks/(\\d+)/([\\w-]+)")
+            .matcher(webhook);
         if (matcher.matches()) {
-            String webhookId = matcher.group(2);
-            String webhookToken = matcher.group(3);
+            String webhookId = matcher.group(4);
+            String webhookToken = matcher.group(5);
 
             Route.CompiledRoute route = Route.Webhooks.EXECUTE_WEBHOOK.compile(webhookId, webhookToken);
 

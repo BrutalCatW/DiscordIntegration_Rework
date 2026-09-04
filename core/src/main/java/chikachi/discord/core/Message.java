@@ -72,11 +72,54 @@ public class Message {
     }
 
     WebhookMessage toWebhook(TextChannel channel) {
+        // Пустой webhook-шаблон означает «это сообщение вебхуком
+        // не отправлять» — уйдёт ботом с шаблоном normal. Проверяем
+        // именно шаблон, а не готовый текст: у чата есть ещё префикс
+        // измерения ([GregTech]), и с ним текст пустым не бывает.
+        if (this.message == null || this.message.webhook == null || this.message.webhook.trim().isEmpty()) {
+            return new WebhookMessage(null, null, null);
+        }
+
+        String username = cleanUsername(this.author);
+
+        // Сообщения без автора — старт, остановка и краш сервера.
+        // Вебхуком их слать нельзя: имени нет, и Discord подставит
+        // имя самого вебхука вместо бота.
+        if (username == null) {
+            return new WebhookMessage(null, null, null);
+        }
+
         return new WebhookMessage(
             formatText(message.webhook, channel),
-            this.author,
+            username,
             this.avatarUrl
         );
+    }
+
+    /**
+     * Имя автора для вебхука.
+     * <p>
+     * 🔴 Сюда приходит {@code getDisplayName()}, а его формирует чат-мод
+     * и вставляет туда цветовые коды: «[§4ВЛАДЕЛЕЦ§r] BrutalCat».
+     * Discord их не понимает и показывает как есть. Коды убираем,
+     * префикс роли оставляем.
+     * <p>
+     * Предел имени вебхука в Discord — 80 символов; на длинном имени
+     * запрос отвергается с 400, и сообщение теряется молча.
+     */
+    private static String cleanUsername(String author) {
+        if (author == null) {
+            return null;
+        }
+
+        String name = Patterns.unifyMinecraftFormatting(author);
+        name = Patterns.minecraftCodePattern.matcher(name).replaceAll("").trim();
+
+        if (name.isEmpty()) {
+            return null;
+        }
+
+        return name.length() > 80 ? name.substring(0, 80).trim() : name;
     }
 
     public Message setMessage(MessageConfig message) {

@@ -14,8 +14,12 @@
 
 package chikachi.discord.core;
 
+import chikachi.discord.core.config.Configuration;
 import com.google.common.base.Joiner;
+import com.mojang.authlib.GameProfile;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -333,7 +337,60 @@ public class CoreUtils {
         return LongStream.of(values).sum() / values.length;
     }
 
+    /**
+     * Ссылка на аватар игрока для вебхука.
+     * <p>
+     * Раньше здесь было жёстко зашито
+     * {@code https://minotar.net/helm/%s/128.png}. Minotar ходит за
+     * скином к Mojang, а у нас свой лаунчер и свои скины в
+     * {@code texture_provider} — для наших игроков он возвращал Стива
+     * либо чужой скин при совпадении ника. Теперь адрес берётся из
+     * конфига ({@code discord.avatarUrl}) и по умолчанию указывает
+     * на прокси сайта {@code /avatar/{UUID}/128}, который резолвит
+     * скин из texture_provider.
+     *
+     * @param profile профиль игрока; null допустим
+     */
+    public static String getAvatarUrl(GameProfile profile) {
+        if (profile == null) {
+            return null;
+        }
+
+        String template = Configuration.getConfig().discord.avatarUrl;
+        if (template == null || template.trim().isEmpty()) {
+            return null;
+        }
+
+        String username = profile.getName() == null ? "" : profile.getName();
+        String uuid = profile.getId() == null ? "" : profile.getId().toString();
+
+        return template
+            .replace("{UUID}", uuid)
+            .replace("{USERNAME}", encode(username));
+    }
+
+    /** По одному нику — когда профиля под рукой нет (say/me от консоли). */
     public static String getAvatarUrl(String minecraftUsername) {
-        return String.format("https://minotar.net/helm/%s/128.png", minecraftUsername);
+        if (minecraftUsername == null || minecraftUsername.isEmpty()) {
+            return null;
+        }
+
+        String template = Configuration.getConfig().discord.avatarUrl;
+        if (template == null || template.trim().isEmpty()) {
+            return null;
+        }
+
+        // Без профиля UUID неизвестен — прокси умеет и по нику.
+        return template
+            .replace("{UUID}", encode(minecraftUsername))
+            .replace("{USERNAME}", encode(minecraftUsername));
+    }
+
+    private static String encode(String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8").replace("+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            return value;
+        }
     }
 }

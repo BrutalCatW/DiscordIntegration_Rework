@@ -66,17 +66,19 @@ public class MinecraftMessagesConfig {
         if (this.chatMessage.normal == null || this.chatMessage.normal.trim().length() == 0) {
             this.chatMessage.normal = CHAT_MESSAGE_NORMAL;
         }
-        if (this.chatMessage.webhook == null || this.chatMessage.webhook.trim().length() == 0) {
+        if (this.chatMessage.webhook == null) {
             this.chatMessage.webhook = CHAT_MESSAGE_WEBHOOK;
         }
 
         if (this.command == null) {
             this.command = new MessageConfig(COMMAND_NORMAL, COMMAND_WEBHOOK);
         }
-        if (this.command.normal == null || this.chatMessage.normal.trim().length() == 0) {
+        // Было: проверка смотрела на chatMessage вместо command —
+        // опечатка копипастой.
+        if (this.command.normal == null || this.command.normal.trim().length() == 0) {
             this.command.normal = COMMAND_NORMAL;
         }
-        if (this.command.webhook == null || this.chatMessage.webhook.trim().length() == 0) {
+        if (this.command.webhook == null) {
             this.command.webhook = COMMAND_WEBHOOK;
         }
 
@@ -86,7 +88,7 @@ public class MinecraftMessagesConfig {
         if (this.playerJoin.normal == null || this.playerJoin.normal.trim().length() == 0) {
             this.playerJoin.normal = PLAYER_JOIN_NORMAL;
         }
-        if (this.playerJoin.webhook == null || this.playerJoin.webhook.trim().length() == 0) {
+        if (this.playerJoin.webhook == null) {
             this.playerJoin.webhook = PLAYER_JOIN_WEBHOOK;
         }
 
@@ -96,18 +98,20 @@ public class MinecraftMessagesConfig {
         if (this.playerLeave.normal == null || this.playerLeave.normal.trim().length() == 0) {
             this.playerLeave.normal = PLAYER_LEAVE_NORMAL;
         }
-        if (this.playerLeave.webhook == null || this.playerLeave.webhook.trim().length() == 0) {
+        if (this.playerLeave.webhook == null) {
             this.playerLeave.webhook = PLAYER_LEAVE_WEBHOOK;
         }
 
         if (this.playerDeath == null) {
             this.playerDeath = new MessageConfig(PLAYER_DEATH_NORMAL, PLAYER_DEATH_WEBHOOK);
         }
+        // Было: откат на текст playerLeave — смерть игрока показывалась
+        // сообщением о выходе с сервера. Тоже копипаста.
         if (this.playerDeath.normal == null || this.playerDeath.normal.trim().length() == 0) {
-            this.playerDeath.normal = PLAYER_LEAVE_NORMAL;
+            this.playerDeath.normal = PLAYER_DEATH_NORMAL;
         }
-        if (this.playerDeath.webhook == null || this.playerDeath.webhook.trim().length() == 0) {
-            this.playerDeath.webhook = PLAYER_LEAVE_WEBHOOK;
+        if (this.playerDeath.webhook == null) {
+            this.playerDeath.webhook = PLAYER_DEATH_WEBHOOK;
         }
 
         if (this.achievement == null) {
@@ -116,7 +120,7 @@ public class MinecraftMessagesConfig {
         if (this.achievement.normal == null || this.achievement.normal.trim().length() == 0) {
             this.achievement.normal = ACHIEVEMENT_NORMAL;
         }
-        if (this.achievement.webhook == null || this.achievement.webhook.trim().length() == 0) {
+        if (this.achievement.webhook == null) {
             this.achievement.webhook = ACHIEVEMENT_WEBHOOK;
         }
 

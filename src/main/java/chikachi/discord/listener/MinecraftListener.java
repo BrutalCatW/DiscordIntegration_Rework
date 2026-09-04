@@ -247,7 +247,8 @@ public class MinecraftListener {
             : genericConfig.messages.chatMessage;
 
         String authorName = event.username;
-        String avatarUrl = CoreUtils.getAvatarUrl(authorName);
+        // Аватар — по профилю, а не по показываемому имени.
+        String avatarUrl = CoreUtils.getAvatarUrl(event.player.getGameProfile());
 
         Long discordId = Configuration.getLinking()
             .getDiscordId(
@@ -310,7 +311,10 @@ public class MinecraftListener {
                 : genericConfig.messages.achievement;
 
             String authorName = entityPlayer.getDisplayName();
-            String avatarUrl = CoreUtils.getAvatarUrl(authorName);
+            // getDisplayName() содержит префикс роли («[ИГРОК] wersalo»),
+            // и в URL аватара он превращал ссылку в мусор. Показываем
+            // имя с префиксом, а аватар берём по профилю.
+            String avatarUrl = CoreUtils.getAvatarUrl(entityPlayer.getGameProfile());
 
             Long discordId = Configuration.getLinking()
                 .getDiscordId(
@@ -350,7 +354,8 @@ public class MinecraftListener {
             : genericConfig.messages.playerJoin;
 
         String authorName = event.player.getDisplayName();
-        String avatarUrl = CoreUtils.getAvatarUrl(authorName);
+        // Префикс роли нужен в имени, но не в ссылке на аватар.
+        String avatarUrl = CoreUtils.getAvatarUrl(event.player.getGameProfile());
 
         Long discordId = Configuration.getLinking()
             .getDiscordId(
@@ -389,7 +394,8 @@ public class MinecraftListener {
             : genericConfig.messages.playerLeave;
 
         String authorName = event.player.getDisplayName();
-        String avatarUrl = CoreUtils.getAvatarUrl(authorName);
+        // Префикс роли нужен в имени, но не в ссылке на аватар.
+        String avatarUrl = CoreUtils.getAvatarUrl(event.player.getGameProfile());
 
         Long discordId = Configuration.getLinking()
             .getDiscordId(
@@ -442,7 +448,10 @@ public class MinecraftListener {
                 : genericConfig.messages.playerDeath;
 
             String authorName = entityPlayer.getDisplayName();
-            String avatarUrl = CoreUtils.getAvatarUrl(authorName);
+            // getDisplayName() содержит префикс роли («[ИГРОК] wersalo»),
+            // и в URL аватара он превращал ссылку в мусор. Показываем
+            // имя с префиксом, а аватар берём по профилю.
+            String avatarUrl = CoreUtils.getAvatarUrl(entityPlayer.getGameProfile());
 
             Long discordId = Configuration.getLinking()
                 .getDiscordId(

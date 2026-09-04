@@ -22,6 +22,13 @@ import java.util.ArrayList;
 public class DiscordConfig {
     @Since(3.0)
     public String token = "";
+    /**
+     * Откуда брать аватар игрока для вебхука.
+     * Подстановки: {UUID} и {USERNAME}.
+     * Пустая строка — не передавать аватар вовсе.
+     */
+    @Since(3.0)
+    public String avatarUrl = "https://brutal-cat.com/avatar/{UUID}/128";
     @Since(3.0)
     public boolean ignoresBots = true;
     @Since(3.0)
@@ -38,6 +45,10 @@ public class DiscordConfig {
     public void fillFields() {
         if (this.token == null) {
             this.token = "";
+        }
+
+        if (this.avatarUrl == null) {
+            this.avatarUrl = "";
         }
 
         if (this.ignoresUsers == null) {
