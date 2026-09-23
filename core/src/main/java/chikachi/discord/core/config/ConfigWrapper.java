@@ -14,6 +14,7 @@
 
 package chikachi.discord.core.config;
 
+import chikachi.discord.core.config.bridge.BridgeConfig;
 import chikachi.discord.core.config.discord.DiscordConfig;
 import chikachi.discord.core.config.imc.IMCConfig;
 import chikachi.discord.core.config.minecraft.MinecraftConfig;
@@ -26,6 +27,8 @@ public class ConfigWrapper {
     public MinecraftConfig minecraft;
     @Since(3.0)
     public IMCConfig imc;
+    @Since(3.0)
+    public BridgeConfig bridge;
 
     public void fillFields() {
         if (this.discord == null) {
@@ -42,5 +45,10 @@ public class ConfigWrapper {
             this.imc = new IMCConfig();
         }
         this.imc.fillFields();
+
+        if (this.bridge == null) {
+            this.bridge = new BridgeConfig();
+        }
+        this.bridge.fillFields();
     }
 }

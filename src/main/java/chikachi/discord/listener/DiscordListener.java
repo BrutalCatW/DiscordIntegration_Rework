@@ -27,6 +27,7 @@ import net.minecraft.util.ChatComponentText;
 
 import com.mojang.authlib.GameProfile;
 
+import chikachi.discord.Bridge;
 import chikachi.discord.DiscordCommandSender;
 import chikachi.discord.IMCHandler;
 import chikachi.discord.core.DiscordClient;
@@ -162,9 +163,18 @@ public class DiscordListener extends ListenerAdapter {
                 .setMessage(config.discord.channels.generic.messages.chatMessage)
                 .setArguments(arguments);
 
-            DiscordIntegrationLogger.Log(message.getFormattedTextMinecraft());
+            // Строка собирается один раз: раньше её пересобирали на каждого
+            // игрока, а теперь она нужна ещё и второму мосту.
+            String chatLine = message.getFormattedTextMinecraft();
+
+            // Второму мосту отдаём ту же строку и до раздачи игрокам:
+            // в Telegram сообщение должно появиться, даже когда на сервере пусто.
+            // Bridge.send только кладёт в очередь, с FML работает тик сервера.
+            Bridge.send(chatLine);
+
+            DiscordIntegrationLogger.Log(chatLine);
             for (EntityPlayerMP player : players) {
-                player.addChatMessage(new ChatComponentText(message.getFormattedTextMinecraft()));
+                player.addChatMessage(new ChatComponentText(chatLine));
             }
         } else if (event.getChannelType() == ChannelType.PRIVATE
             && Configuration.getConfig().discord.channels.generic.allowDMCommands) {

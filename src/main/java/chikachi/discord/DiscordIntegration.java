@@ -39,6 +39,7 @@ public class DiscordIntegration {
 
     private static Proxy proxy = new Proxy();
     private MinecraftListener minecraftListener = new MinecraftListener();
+    private Bridge bridge = new Bridge();
 
     @Mod.EventHandler
     public void onPreInit(FMLPreInitializationEvent event) {
@@ -50,6 +51,13 @@ public class DiscordIntegration {
         FMLCommonHandler.instance()
             .bus()
             .register(minecraftListener);
+
+        // Мост со вторым модом. Тик сервера живёт на шине FML, и это первый
+        // тик-обработчик в моде: очередь IMC потокобезопасной не является,
+        // поэтому обмен с ней идёт только отсюда.
+        FMLCommonHandler.instance()
+            .bus()
+            .register(bridge);
     }
 
     @Mod.EventHandler
@@ -83,6 +91,7 @@ public class DiscordIntegration {
     @Mod.EventHandler
     public void onServerStopped(FMLServerStoppedEvent event) {
         proxy.onServerStopped();
+        Bridge.clear();
     }
 
     @Mod.EventHandler
